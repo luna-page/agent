@@ -1,0 +1,13 @@
+[Unit]
+Description=luna Agent Service
+After=network.target
+StartLimitIntervalSec=5min
+StartLimitBurst=3
+
+[Service]
+Type=simple
+Restart=always
+ExecStart={{ .BinaryPath }} --config {{ .ConfigPath }}
+
+[Install]
+WantedBy=multi-user.target

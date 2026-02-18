@@ -1,0 +1,6 @@
+- type: remote
+  name: {{ .Hostname }}
+  url: http://{{ .LocalAddress }}:{{ .Port }}
+  {{- if .RandomAuthToken }}
+  token: {{ .AuthToken }}
+  {{- end }}

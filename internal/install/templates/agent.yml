@@ -1,0 +1,12 @@
+server:
+  port: {{ .Port }}
+  {{- if .RandomAuthToken }}
+  token: {{ .AuthToken }}
+  {{- end }}
+
+system:
+  mountpoints:
+  {{- range .HiddenMountpoints }}
+    "{{ . }}":
+      hide: true
+  {{- end }}
