@@ -27,7 +27,7 @@ archives:
 
 dockers:
   - image_templates:
-      - &amd64_image "{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - &amd64_image "ghcr.io/{{ .ProjectName }}:{{ .Tag }}-amd64"
     build_flag_templates:
       - --platform=linux/amd64
     goarch: amd64
@@ -35,7 +35,7 @@ dockers:
     dockerfile: Dockerfile.goreleaser
 
   - image_templates:
-      - &arm64v8_image "{{ .ProjectName }}:{{ .Tag }}-arm64"
+      - &arm64v8_image "ghcr.io/{{ .ProjectName }}:{{ .Tag }}-arm64"
     build_flag_templates:
       - --platform=linux/arm64
     goarch: arm64
@@ -43,7 +43,7 @@ dockers:
     dockerfile: Dockerfile.goreleaser
 
   - image_templates:
-      - &armv7_image "{{ .ProjectName }}:{{ .Tag }}-armv7"
+      - &armv7_image "ghcr.io/{{ .ProjectName }}:{{ .Tag }}-armv7"
     build_flag_templates:
       - --platform=linux/arm/v7
     goarch: arm
@@ -52,11 +52,11 @@ dockers:
     dockerfile: Dockerfile.goreleaser
 
 docker_manifests:
-  - name_template: "{{ .ProjectName }}:{{ .Tag }}"
+  - name_template: "ghcr.io/{{ .ProjectName }}:{{ .Tag }}"
     image_templates: &multiarch_images
       - *amd64_image
       - *arm64v8_image
       - *armv7_image
-  - name_template: "{{ .ProjectName }}:latest"
+  - name_template: "ghcr.io/{{ .ProjectName }}:latest"
     skip_push: auto
     image_templates: *multiarch_images

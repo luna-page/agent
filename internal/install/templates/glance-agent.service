@@ -1,5 +1,5 @@
 [Unit]
-Description=luna Agent Service
+Description=Luna Agent Service
 After=network.target
 StartLimitIntervalSec=5min
 StartLimitBurst=3

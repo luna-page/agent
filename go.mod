@@ -5,7 +5,7 @@ go 1.24.3
 toolchain go1.24.4
 
 require (
-	github.com/luna-page/luna v0.8.4
+	github.com/luna-page/luna
 	github.com/shirou/gopsutil/v4 v4.25.4
 	gopkg.in/yaml.v3 v3.0.1
 )
