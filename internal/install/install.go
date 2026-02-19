@@ -127,7 +127,7 @@ func Init() (err error) {
 	}
 
 	if !isUsingSystemd() {
-		return errors.New("automatic installation is only supported on systems running systemd")
+		return errors.New("automatic installation is only supported on systems running systemd. For Synology DSM and Unraid, use the Docker installation method from the README")
 	}
 
 	if isRunningInsideDockerContainer() {

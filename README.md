@@ -30,7 +30,7 @@ Choose one of the following methods:
 services:
   luna-agent:
     container_name: luna-agent
-    image: luna-page/agent
+    image: ghcr.io/luna-page/agent:latest
     environment:
       # Optional, leave empty or comment out for no authentication
       TOKEN: your_auth_token_here
@@ -50,6 +50,55 @@ Then, add the following entry to your `servers` list in luna's `server-stats` wi
   token: <token from above, if set>
 ```
 
+### Synology DSM (Container Manager)
+
+1. Open **Container Manager** → **Project** → **Create**.
+2. Paste the same compose file shown above.
+3. Set the volume mappings to paths that exist on your NAS (for example, `/volume1` paths).
+4. Deploy the project and ensure port `27973` is allowed by DSM firewall/network settings.
+
+Ready-to-copy example file:
+
+- [`examples/platforms/synology/docker-compose.yml`](examples/platforms/synology/docker-compose.yml)
+
+> [!TIP]
+>
+> On Synology, `agent install` is not supported because DSM does not use systemd. Use the Docker method.
+
+### Unraid (Docker)
+
+Use either of these approaches:
+
+- **Docker tab**: Add a container using image `ghcr.io/luna-page/agent:latest`, map host port `27973` to container port `27973`, and add any volume mappings you want to monitor.
+- **Compose Manager plugin**: Use the same compose snippet above.
+
+After starting the container, add the same `server-stats` entry shown above using your Unraid host IP.
+
+Ready-to-copy Community Apps template XML:
+
+- [`examples/platforms/unraid/luna-agent.xml`](examples/platforms/unraid/luna-agent.xml)
+
+#### How to import the Unraid XML template
+
+1. Open **Unraid Web UI** → **Docker**.
+2. Click **Add Container**.
+3. In **Template**, select **User Templates** (or your custom templates folder).
+4. Click the template selector and choose **Import XML Template** (or **Edit** → paste XML, depending on Unraid version).
+5. Paste the contents of `examples/platforms/unraid/luna-agent.xml` and save.
+6. Review port/path/token values, then click **Apply**.
+7. Once started, verify `http://<unraid-ip>:27973/api/healthz` returns `200 OK`.
+
+If you need the on-disk template folder, common locations are `/boot/config/plugins/dockerMan/templates-user/` (typical Unraid 6.x) and `/boot/config/plugins/community.applications/private/` (Community Apps cache).
+
+If the template is not showing in the dropdown:
+
+- Make sure the XML file extension is exactly `.xml`.
+- Refresh the Docker page (or restart the Docker service from **Settings** → **Docker**).
+- Confirm the file is in `templates-user` and readable.
+- Re-open **Add Container** and switch Template to **User Templates** again.
+
+If you use **host** network mode in Unraid, container port mappings are ignored, so access the agent directly on `http://<unraid-ip>:27973` (or whatever `PORT` env var is set to).
+
 <br>
 </details>
 
@@ -63,6 +112,10 @@ Download the latest release for your architecture from the [releases page](https
 ```bash
 sudo ./agent install
 ```
+
+> [!IMPORTANT]
+>
+> This installer is for Linux hosts running **systemd** only. For Synology DSM and Unraid, use the Docker container method.
 
 And follow the instructions. When done, the agent can later be configured through the config file at:
 
@@ -105,6 +158,60 @@ Alternatively, omit the `--config` and configure via environment variables as de
 From here, to get it to start on boot, it's up to you whether you choose to create a systemd service or use another method.
 
 </details>
+
+<br>
+
+## Build from source
+
+### Prerequisites
+
+- Go 1.24+
+- A Linux system if you want to use `agent install` (systemd required)
+
+### Build locally
+
+```bash
+git clone https://github.com/luna-page/agent.git
+cd agent
+go mod download
+go build -o luna-agent .
+```
+
+Run with a config file:
+
+```bash
+./luna-agent --config /path/to/agent.yml
+```
+
+Or run with environment variables only (for example in containers):
+
+```bash
+PORT=27973 TOKEN=your_auth_token ./luna-agent
+```
+
+### Cross-compile examples
+
+Build for Linux amd64:
+
+```bash
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o luna-agent-linux-amd64 .
+```
+
+Build for Linux arm64:
+
+```bash
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o luna-agent-linux-arm64 .
+```
+
+### Install from your own build (systemd hosts)
+
+If you built the binary yourself and want the guided installer:
+
+```bash
+sudo ./luna-agent install
+```
+
+For non-systemd environments (Synology/Unraid), run your built binary manually or package it in a container.
 
 <br>
 

@@ -31,7 +31,7 @@ func parseCliOptions() (*cliOptions, error) {
 		flags.PrintDefaults()
 
 		fmt.Println("\nCommands:")
-		fmt.Println("  install        Install the agent as a systemd service")
+		fmt.Println("  install        Install the agent as a systemd service (Linux + systemd)")
 		fmt.Println("  sensors:print  List all sensors")
 	}
 	configPath := flags.String("config", "agent.yml", "Set config path")

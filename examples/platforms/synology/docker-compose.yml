@@ -1,0 +1,15 @@
+services:
+  luna-agent:
+    container_name: luna-agent
+    image: ghcr.io/luna-page/agent:latest
+    environment:
+      # Optional, leave empty or remove for no authentication
+      TOKEN: ""
+      # Optional; defaults to 27973
+      PORT: "27973"
+    volumes:
+      # Example volume for disk stats (adjust for your NAS)
+      - /volume1:/volume1:ro
+    ports:
+      - "27973:27973"
+    restart: unless-stopped

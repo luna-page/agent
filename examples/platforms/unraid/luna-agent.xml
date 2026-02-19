@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>luna-agent</Name>
+  <Repository>ghcr.io/luna-page/agent:latest</Repository>
+  <Registry>https://ghcr.io/luna-page/agent</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/luna-page/agent/issues</Support>
+  <Project>https://github.com/luna-page/agent</Project>
+  <Overview>A lightweight service that exposes system metrics over HTTP for luna server-stats.</Overview>
+  <Category>Network:Other</Category>
+  <WebUI>http://[IP]:[PORT:27973]/api/healthz</WebUI>
+  <TemplateURL/>
+  <Icon>https://raw.githubusercontent.com/luna-page/agent/main/assets/logo.png</Icon>
+
+  <Config Name="Web UI port" Target="27973" Default="27973" Mode="tcp" Type="Port" Display="always" Required="true" Mask="false">27973</Config>
+  <Config Name="Token (optional)" Target="TOKEN" Default="" Mode="" Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="Host storage path (optional)" Target="/storage" Default="/mnt/user" Mode="ro" Type="Path" Display="always" Required="false" Mask="false">/mnt/user</Config>
+</Container>
