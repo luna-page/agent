@@ -43,6 +43,24 @@ detect_release_arch() {
 	esac
 }
 
+normalize_version() {
+	local version="$1"
+	echo "${version#v}"
+}
+
+versions_match() {
+	[[ "$(normalize_version "$1")" == "$(normalize_version "$2")" ]]
+}
+
+get_installed_version() {
+	if [[ ! -x "${TARGET_BINARY}" ]]; then
+		echo ""
+		return
+	fi
+
+	"${TARGET_BINARY}" --version 2>/dev/null | head -n1 | tr -d '[:space:]'
+}
+
 fetch_latest_tag() {
 	local response
 	if command -v curl >/dev/null 2>&1; then
@@ -58,16 +76,11 @@ fetch_latest_tag() {
 }
 
 download_latest_binary() {
-	local arch tag
+	local tag="$1"
+	local arch
 	arch="$(detect_release_arch)"
 	if [[ -z "${arch}" ]]; then
 		echo "Unsupported architecture: $(uname -m)"
-		exit 1
-	fi
-
-	tag="$(fetch_latest_tag)"
-	if [[ -z "${tag}" ]]; then
-		echo "Could not determine latest release tag."
 		exit 1
 	fi
 
@@ -81,7 +94,7 @@ download_latest_binary() {
 	archive_path="${tmp_dir}/agent.tar.gz"
 	download_url="${RELEASES_URL}/${tag}/agent-linux-${arch}.tar.gz"
 
-	echo "Downloading ${tag} for ${arch}..."
+	echo "Downloading ${tag} for ${arch}..." >&2
 	if command -v curl >/dev/null 2>&1; then
 		curl -fL "${download_url}" -o "${archive_path}"
 	elif command -v wget >/dev/null 2>&1; then
@@ -92,7 +105,7 @@ download_latest_binary() {
 		exit 1
 	fi
 
-	echo "Extracting archive..."
+	echo "Extracting archive..." >&2
 	tar -xzf "${archive_path}" -C "${tmp_dir}"
 
 	if [[ ! -f "${tmp_dir}/agent" ]]; then
@@ -111,7 +124,19 @@ SOURCE_BINARY=""
 if [[ "$#" -eq 1 ]]; then
 	SOURCE_BINARY="$1"
 else
-	SOURCE_BINARY="$(download_latest_binary)"
+	latest_tag="$(fetch_latest_tag)"
+	if [[ -z "${latest_tag}" ]]; then
+		echo "Could not determine latest release tag."
+		exit 1
+	fi
+
+	installed_version="$(get_installed_version)"
+	if [[ -n "${installed_version}" ]] && versions_match "${installed_version}" "${latest_tag}"; then
+		echo "luna-agent is up to date (${latest_tag})."
+		exit 0
+	fi
+
+	SOURCE_BINARY="$(download_latest_binary "${latest_tag}")"
 	cleanup_temp_source="$(dirname "${SOURCE_BINARY}")"
 fi
 
