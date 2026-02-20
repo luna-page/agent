@@ -8,11 +8,12 @@ echo -e "\nRemoving firewall rule..."
 ufw delete allow {{ .Port }}/tcp
 {{ end }}
 
-echo -e "\nConfirm one at a time if you want to remove the following 4 files and 1 directory [y/n]:\n"
+echo -e "\nConfirm one at a time if you want to remove the following 5 files and 1 directory [y/n]:\n"
 rm -i \
     "{{ .ConfigPath }}" \
     "{{ .BinaryPath }}" \
     "{{ .ServicePath }}" \
-    "{{ .UninstallScriptPath }}"
+    "{{ .UninstallScriptPath }}" \
+    "{{ .UpdateScriptPath }}"
 
 rm -di "{{ .InstallDirectory }}"

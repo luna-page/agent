@@ -134,7 +134,19 @@ And follow the instructions. When done, the agent can later be configured throug
 
 > [!NOTE]
 >
-> To update the agent, you must download the latest release and replace the existing binary at `/opt/luna-agent/agent`. Then, restart the service with:
+> To update the agent automatically to the latest release, run:
+
+```bash
+sudo /opt/luna-agent/update.sh
+```
+
+> You can also provide a local binary path:
+
+```bash
+sudo /opt/luna-agent/update.sh /path/to/extracted/agent
+```
+
+> Or update manually by replacing `/opt/luna-agent/agent` and restarting the service with:
 
 ```bash
 sudo systemctl restart luna-agent

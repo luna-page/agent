@@ -37,7 +37,7 @@ type installOptions struct {
 	ServicePath         string
 	ServiceName         string
 	UninstallScriptPath string
-	// UpdateScriptPath      string
+	UpdateScriptPath    string
 	LocalAddress          string
 	Hostname              string
 	AuthToken             string
@@ -142,7 +142,7 @@ func Init() (err error) {
 	var serviceTemplate = mustParseTemplate("luna-agent.service")
 	var configTemplate = mustParseTemplate("agent.yml")
 	var configEntryTemplate = mustParseTemplate("luna-entry.yml")
-	// var updateScriptTemplate = mustParseTemplate("update.sh")
+	var updateScriptTemplate = mustParseTemplate("update.sh")
 	var uninstallScriptTemplate = mustParseTemplate("uninstall.sh")
 
 	installOptionHandlers := editableInstallOptions{
@@ -339,7 +339,7 @@ func Init() (err error) {
 
 	options.BinaryPath = filepath.Join(options.InstallDirectory, "agent")
 	options.UninstallScriptPath = filepath.Join(options.InstallDirectory, "uninstall.sh")
-	// options.UpdateScriptPath = filepath.Join(options.InstallDirectory, "update.sh")
+	options.UpdateScriptPath = filepath.Join(options.InstallDirectory, "update.sh")
 	options.ServiceName = filepath.Base(options.ServicePath)
 
 	fmt.Println()
@@ -347,7 +347,7 @@ func Init() (err error) {
 	var serviceFileContents []byte
 	var configFileContents []byte
 	var lunaConfigEntryContents []byte
-	// var updateScriptFileContents []byte
+	var updateScriptFileContents []byte
 	var uninstallScriptFileContents []byte
 
 	if !doWithProgressIndicator("Generating file contents", func() (string, error, bool) {
@@ -371,10 +371,10 @@ func Init() (err error) {
 			return fail(err)
 		}
 
-		// updateScriptFileContents, err = updateScriptTemplate(options)
-		// if err != nil {
-		// 	return fail(err)
-		// }
+		updateScriptFileContents, err = updateScriptTemplate(options)
+		if err != nil {
+			return fail(err)
+		}
 
 		uninstallScriptFileContents, err = uninstallScriptTemplate(options)
 		if err != nil {
@@ -421,9 +421,9 @@ func Init() (err error) {
 			return fail(err)
 		}
 
-		// if err := createFileIfNotExists(options.UpdateScriptPath, updateScriptFileContents, 0744); err != nil {
-		// 	return fail(err)
-		// }
+		if err := createFileIfNotExists(options.UpdateScriptPath, updateScriptFileContents, 0744); err != nil {
+			return fail(err)
+		}
 
 		return "DONE", nil, true
 	}) {
@@ -495,7 +495,7 @@ func Init() (err error) {
 		fmt.Printf("You may need to manually open port %d/tcp on this server if you have a firewall\n", options.Port)
 	}
 
-	// fmt.Println("\nTo update the agent run", trm.Styled("sudo "+options.UpdateScriptPath, trm.FgCyan))
+	fmt.Println("\nTo update the agent run", trm.Styled("sudo "+options.UpdateScriptPath, trm.FgCyan))
 	fmt.Println("\nTo uninstall the agent run", trm.Styled("sudo "+options.UninstallScriptPath, trm.FgCyan))
 
 	fmt.Print("\nAdd the following entry to your servers list in luna.yml:\n\n")
