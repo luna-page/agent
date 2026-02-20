@@ -9,7 +9,8 @@ fi
 
 TARGET_BINARY="{{ .BinaryPath }}"
 SERVICE_NAME="{{ .ServiceName }}"
-RELEASES_URL="https://github.com/luna-page/agent/releases/latest/download"
+GITHUB_API_LATEST="https://api.github.com/repos/luna-page/agent/releases/latest"
+RELEASES_URL="https://github.com/luna-page/agent/releases/download"
 
 usage() {
 	echo "Usage:"
@@ -42,11 +43,31 @@ detect_release_arch() {
 	esac
 }
 
+fetch_latest_tag() {
+	local response
+	if command -v curl >/dev/null 2>&1; then
+		response="$(curl -fsSL "${GITHUB_API_LATEST}")"
+	elif command -v wget >/dev/null 2>&1; then
+		response="$(wget -qO- "${GITHUB_API_LATEST}")"
+	else
+		echo "Neither curl nor wget is installed; cannot check latest release."
+		exit 1
+	fi
+
+	echo "${response}" | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n1
+}
+
 download_latest_binary() {
-	local arch
+	local arch tag
 	arch="$(detect_release_arch)"
 	if [[ -z "${arch}" ]]; then
 		echo "Unsupported architecture: $(uname -m)"
+		exit 1
+	fi
+
+	tag="$(fetch_latest_tag)"
+	if [[ -z "${tag}" ]]; then
+		echo "Could not determine latest release tag."
 		exit 1
 	fi
 
@@ -58,9 +79,9 @@ download_latest_binary() {
 	local tmp_dir archive_path download_url
 	tmp_dir="$(mktemp -d)"
 	archive_path="${tmp_dir}/agent.tar.gz"
-	download_url="${RELEASES_URL}/agent-linux-${arch}.tar.gz"
+	download_url="${RELEASES_URL}/${tag}/agent-linux-${arch}.tar.gz"
 
-	echo "Downloading latest release for ${arch}..."
+	echo "Downloading ${tag} for ${arch}..."
 	if command -v curl >/dev/null 2>&1; then
 		curl -fL "${download_url}" -o "${archive_path}"
 	elif command -v wget >/dev/null 2>&1; then
